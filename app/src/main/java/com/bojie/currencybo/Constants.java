@@ -66,5 +66,7 @@ public class Constants {
     public static final String SERVICE_REPETITION = "SERVICE_REPETITION";
     public static final String NUM_DOWNLOADS = "NUM_DOWNLOADS";
 
+    public static final int CONNECTION_READ_TIMEOUT = 10000;
+    public static final int CONNECTION_TIMEOUT = 10000;
 }
 
