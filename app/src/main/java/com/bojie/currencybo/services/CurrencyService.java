@@ -56,8 +56,15 @@ public class CurrencyService extends IntentService {
                         bundle.putParcelable(Constants.RESULT, currency);
                         receiverForSending.send(Constants.STATUS_FINISHED, bundle);
                     }
+                } catch (Exception e) {
+                    bundle.putString(Intent.EXTRA_TEXT, e.toString());
+                    receiverForSending.send(Constants.STATUS_ERROR, bundle);
                 }
+            } else {
+                LogUtils.log(TAG, "No Internet Connection");
             }
         }
+        LogUtils.log(TAG, "Currency Service has stopped");
+        stopSelf();
     }
 }

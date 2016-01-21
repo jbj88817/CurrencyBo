@@ -58,6 +58,7 @@ public class Constants {
 
     // Constant for notification
     public static final int NOTIFICATION_ID = 100;
+    public static final int REQUEST_ID_NUM = 101;
 
     // Constants for SharedPreferences
     public static final String CURRENCY_PREFERENCES = "CURRENCY_PREFERENCES";
@@ -68,5 +69,6 @@ public class Constants {
 
     public static final int CONNECTION_READ_TIMEOUT = 10000;
     public static final int CONNECTION_TIMEOUT = 10000;
+
 }
 
