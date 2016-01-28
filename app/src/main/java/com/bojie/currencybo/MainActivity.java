@@ -1,6 +1,7 @@
 package com.bojie.currencybo;
 
 import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.bojie.currencybo.database.CurrencyDatabaseAdapter;
+import com.bojie.currencybo.database.CurrencyTableHelper;
 import com.bojie.currencybo.receivers.CurrencyReceiver;
 import com.bojie.currencybo.services.CurrencyService;
 import com.bojie.currencybo.utils.LogUtils;
@@ -17,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
     private String mBaseCurrency = Constants.CURRENCY_CODES[30];
     private String mTargetCurrency = Constants.CURRENCY_CODES[5];
+    private CurrencyTableHelper mCurrencyTableHelper;
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -25,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initDB();
         retrieveCurrencyExchangeRate();
     }
 
@@ -50,6 +55,19 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                             String message = "Currency: " + currencyParcel.getBase() + " - " +
                                     currencyParcel.getName() + ": " + currencyParcel.getRate();
                             LogUtils.log(TAG, message);
+                            long id = mCurrencyTableHelper.insertCurrency(currencyParcel);
+                            Currency currency = currencyParcel;
+                            try {
+                                currency = mCurrencyTableHelper.getCurrency(id);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                LogUtils.log(TAG, "Currency retrieval has failed");
+                            }
+                            if (currency != null) {
+                                String dbMessage = "Currency (DB): " + currency.getBase() + " - " +
+                                        currency.getName() + ": " + currency.getRate();
+                                LogUtils.log(TAG, dbMessage);
+                            }
                         }
                     }
                 });
@@ -60,6 +78,11 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                 LogUtils.log(TAG, error);
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void initDB() {
+        CurrencyDatabaseAdapter currencyDatabaseAdapter = new CurrencyDatabaseAdapter(this);
+        mCurrencyTableHelper = new CurrencyTableHelper(currencyDatabaseAdapter);
     }
 
     private void retrieveCurrencyExchangeRate() {
