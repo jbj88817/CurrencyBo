@@ -13,7 +13,10 @@ import com.bojie.currencybo.database.CurrencyDatabaseAdapter;
 import com.bojie.currencybo.database.CurrencyTableHelper;
 import com.bojie.currencybo.receivers.CurrencyReceiver;
 import com.bojie.currencybo.services.CurrencyService;
+import com.bojie.currencybo.utils.AlarmUtils;
 import com.bojie.currencybo.utils.LogUtils;
+import com.bojie.currencybo.utils.NotificationUtils;
+import com.bojie.currencybo.utils.SharedPreferencesUtils;
 import com.bojie.currencybo.value_objects.Currency;
 
 public class MainActivity extends AppCompatActivity implements CurrencyReceiver.Receiver{
@@ -23,12 +26,14 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
     private CurrencyTableHelper mCurrencyTableHelper;
 
     public static final String TAG = MainActivity.class.getSimpleName();
+    private int mServiceRepetition = AlarmUtils.REPEAT.REPEAT_EVERY_MINUTE.ordinal();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        resetDownloads();
         initDB();
         retrieveCurrencyExchangeRate();
     }
@@ -67,6 +72,20 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                                 String dbMessage = "Currency (DB): " + currency.getBase() + " - " +
                                         currency.getName() + ": " + currency.getRate();
                                 LogUtils.log(TAG, dbMessage);
+                                NotificationUtils.showNotificationMessage(getApplicationContext(),
+                                        "Currency Exchange Rate", dbMessage);
+                            }
+
+                            if (NotificationUtils.isAppInBackground(MainActivity.this)) {
+                                int numDownloads = SharedPreferencesUtils.getNumDownloads(
+                                        getApplicationContext());
+                                SharedPreferencesUtils.updateNumDownload(
+                                        getApplicationContext(), ++numDownloads);
+                                if (numDownloads == Constants.MAX_DOWNLOADS) {
+                                    LogUtils.log(TAG, "Max downloads for the background processing has been reached.");
+                                    mServiceRepetition = AlarmUtils.REPEAT.REPEAT_EVERY_DAY.ordinal();
+                                    retrieveCurrencyExchangeRate();
+                                }
                             }
                         }
                     }
@@ -100,7 +119,13 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
         bundle.putString(Constants.CURRENCY_NAME, mTargetCurrency);
         bundle.putString(Constants.CURRENCY_BASE, mBaseCurrency);
         intent.putExtra(Constants.BUNDLE, bundle);
-        startService(intent);
+        //startService(intent);
+        AlarmUtils.startService(this, intent,
+                AlarmUtils.REPEAT.values()[mServiceRepetition]);
+    }
+
+    private void resetDownloads() {
+        SharedPreferencesUtils.updateNumDownload(this, 0);
     }
 
     @Override

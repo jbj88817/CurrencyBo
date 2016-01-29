@@ -48,7 +48,7 @@ public class SharedPreferencesUtils {
         return  sharedPreferences.getInt(Constants.NUM_DOWNLOADS, 0);
     }
 
-    public static void updateNumdownload(Context context, int numDownload) {
+    public static void updateNumDownload(Context context, int numDownload) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 Constants.CURRENCY_PREFERENCES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
