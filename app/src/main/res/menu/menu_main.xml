@@ -3,8 +3,15 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.bojie.currencybo.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:id="@+id/action_show_logs"
+        android:title="Log Visibility"
+        android:icon="@drawable/ic_keyboard_hide"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_clear_logs"
+        android:title="Log Visibility"
+        android:icon="@drawable/ic_clear"
+        app:showAsAction="ifRoom"/>
+
 </menu>
